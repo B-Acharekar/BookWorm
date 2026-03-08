@@ -1,0 +1,52 @@
+:root {
+  --primary-green: #2f855a;
+  --bg-color: #f5f3ee;
+  --border-color: #000000;
+  --accent-yellow: #ffd54f;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  color: var(--border-color);
+}
+
+#root {
+  width: 100%;
+}
+
+.fw-black {
+  font-weight: 900;
+}
+
+.lh-1 {
+  line-height: 1;
+}
+
+.object-fit-cover {
+  object-fit: cover;
+}
+
+.app-wrapper {
+  background-color: var(--bg-color);
+}
+
+/* Custom Scrollbar for Brutalist Look */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-color);
+  border-left: 3px solid black;
+}
+
+::-webkit-scrollbar-thumb {
+  background: black;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-green);
+}
