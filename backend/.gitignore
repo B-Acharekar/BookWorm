@@ -1,0 +1,22 @@
+venv
+.env.example
+.env
+__pycache__/
+*.pyc
+*.pyo
+# Ignore database files
+*.db
+# Ignore log files
+*.log
+# Ignore virtual environment directories
+venv/
+# Ignore IDE specific files
+.idea/
+.vscode/
+# Ignore node modules
+node_modules/
+# Ignore build files
+dist/
+# Ignore Firebase config files (if they contain sensitive information)
+*.json
+
