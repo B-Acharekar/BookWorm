@@ -5,7 +5,7 @@ from typing import List, Dict, Any
 
 class FirebaseService:
     def __init__(self):
-        cred_path = os.getenv("FIREBASE_CREDENTIAL_PATH")
+        cred_path = os.path.join(os.getcwd(), "bookworm_firebase_admin.json")
         if not firebase_admin._apps:
             cred = credentials.Certificate(cred_path)
             firebase_admin.initialize_app(cred)
