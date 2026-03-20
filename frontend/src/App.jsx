@@ -10,6 +10,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { BookProvider } from './context/BookContext';
 import PageContainer from './components/layout/PageContainer';
 import SectionHeader from './components/ui/SectionHeader';
+import Community from './pages/community/community';
 
 // Lazy loading pages for performance
 const Landing = lazy(() => import('./pages/public/Landing'));
@@ -64,6 +65,7 @@ function App() {
                   {/* Protected Routes */}
                   <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
                   <Route path="/my-books" element={<ProtectedRoute><MyBooks /></ProtectedRoute>} />
+                  <Route path="/community" element={<ProtectedRoute><Community /></ProtectedRoute>} />
                   <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                   <Route path="/book/:bookId" element={<BookDetails />} />
 

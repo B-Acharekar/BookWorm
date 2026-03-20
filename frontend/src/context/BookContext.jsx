@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useAuth } from "./AuthContext";
-import { getUserBooks, updateBookStatus, removeBook, saveBookToUser } from "../firebase/firestore";
+import { getUserBooks, updateBookStatus, saveBookToUser } from "../firebase/firestore";
 import axios from "axios";
 
 const BookContext = createContext();
@@ -14,37 +14,50 @@ export const BookProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      fetchMyBooks();
-    } else {
-      setMyBooks([]);
-    }
+    if (user) fetchMyBooks();
+    else setMyBooks([]);
   }, [user]);
 
   const fetchMyBooks = async () => {
-    if (!user) return;
     const books = await getUserBooks(user.uid);
     setMyBooks(books);
   };
 
-  const searchBooks = async (query) => {
+  // 🔥 BACKEND SEARCH (UPGRADED)
+  const searchBooks = useCallback(async (query) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
     setLoading(true);
     try {
-      const response = await axios.get(`https://openlibrary.org/search.json?q=${query}`);
-      const formatted = response.data.docs.slice(0, 10).map(book => ({
-        id: book.key.split("/").pop(),
+      const res = await axios.get(
+        `http://localhost:8000/api/books/search?query=${query}`
+      );
+
+      const formatted = res.data.results.map(book => ({
+        id: book.work_key.split("/").pop(),
+        work_key: book.work_key,
+
         title: book.title,
-        author: book.author_name ? book.author_name[0] : "Unknown Author",
-        cover: book.cover_i ? `https://covers.openlibrary.org/b/id/${book.cover_i}-L.jpg` : "https://via.placeholder.com/150",
-        publish_year: book.first_publish_year,
-        description: book.first_sentence ? book.first_sentence[0] : "No description available."
+        author: book.author,
+        cover: book.cover || "https://via.placeholder.com/150",
+
+        publish_year: book.publish_year,
+        rating: book.rating || null,
+
+        // ❌ NO description here (search API doesn’t give it)
       }));
+
       setSearchResults(formatted);
-    } catch (error) {
-      console.error("Search failed:", error);
+
+    } catch (err) {
+      console.error("Search failed:", err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  };
+  }, []);
 
   const addToMyBooks = async (book, status) => {
     if (!user) return;
@@ -58,14 +71,16 @@ export const BookProvider = ({ children }) => {
     fetchMyBooks();
   };
 
-  const value = {
-    myBooks,
-    searchResults,
-    loading,
-    searchBooks,
-    addToMyBooks,
-    updateStatus
-  };
-
-  return <BookContext.Provider value={value}>{children}</BookContext.Provider>;
+  return (
+    <BookContext.Provider value={{
+      myBooks,
+      searchResults,
+      loading,
+      searchBooks,
+      addToMyBooks,
+      updateStatus
+    }}>
+      {children}
+    </BookContext.Provider>
+  );
 };

@@ -1,22 +1,36 @@
 :root {
-  --primary-green: #2f855a;
-  --bg-color: #f5f3ee;
-  --border-color: #000000;
-  --accent-yellow: #ffd54f;
+  --bg: #ffffff;
+  --text: #000000;
+  --accent: #ff2d2d;
+
+  /* Keep compatibility aliases if needed */
+  --bg-color: var(--bg);
+  --border-color: var(--text);
+}
+
+[data-theme="dark"] {
+  --bg: #000000;
+  --text: #ffffff;
+  --accent: #ff2d2d;
+
+  --bg-color: var(--bg);
+  --border-color: var(--text);
 }
 
 body {
   margin: 0;
-  display: flex;
   min-height: 100vh;
-  background-color: var(--bg-color);
-  color: var(--border-color);
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Layout wrapper */
 #root {
   width: 100%;
 }
 
+/* Utility */
 .fw-black {
   font-weight: 900;
 }
@@ -30,23 +44,5 @@ body {
 }
 
 .app-wrapper {
-  background-color: var(--bg-color);
-}
-
-/* Custom Scrollbar for Brutalist Look */
-::-webkit-scrollbar {
-  width: 12px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--bg-color);
-  border-left: 3px solid black;
-}
-
-::-webkit-scrollbar-thumb {
-  background: black;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--primary-green);
+  background-color: var(--bg);
 }

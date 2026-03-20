@@ -1,30 +1,73 @@
+import httpx
+import requests
 import asyncio
-from olclient.openlibrary import OpenLibrary
+
+BASE_URL = "https://openlibrary.org"
 
 class OpenLibraryService:
-    def __init__(self):
-        self.ol = OpenLibrary()
 
-    async def search_books(self, title: str):
-        """Search for books by title."""
-        # OpenLibrary-client might not be fully async, wrapping in run_in_executor if needed
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, self.ol.Work.search, title)
+    # 🔍 SEARCH BOOKS (Updated with limit and specific fields)
+    async def search_books(self, query: str):
+        async with httpx.AsyncClient() as client:
+            try:
+                res = await client.get(
+                    f"{BASE_URL}/search.json",
+                    params={
+                        "q": query,
+                        "limit": 10,  # ⚡ fast response
+                        "fields":"title,author_name,first_publish_year,cover_i,key,ratings_average"
+                    },
+                    timeout=3.0
+                )
+                data = res.json()
+                return data.get("docs", [])
+            except Exception:
+                return []
 
-    async def get_author_by_name(self, name: str):
-        """Get author details by name."""
+    # 📖 FULL BOOK DETAILS
+    async def get_full_book(self, work_id: str):
         loop = asyncio.get_event_loop()
-        author_olid = await loop.run_in_executor(None, self.ol.Author.get_olid_by_name, name)
-        if author_olid:
-            return await loop.run_in_executor(None, self.ol.get, author_olid)
-        return None
 
-    async def get_edition(self, edition_id: str):
-        """Get edition details by OLID."""
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, self.ol.Edition.get, edition_id)
+        # Normalize work_id
+        if not work_id.startswith("/works/"):
+            work_id = f"/works/{work_id}"
 
-    async def get_work(self, work_id: str):
-        """Get work details by OLID."""
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, self.ol.Work.get, work_id)
+        def fetch_work():
+            url = f"{BASE_URL}{work_id}.json"
+            return requests.get(url, timeout=5).json()
+
+        def fetch_editions():
+            url = f"{BASE_URL}{work_id}/editions.json"
+            return requests.get(url, timeout=5).json()
+
+        # Run blocking requests in parallel executors
+        work = await loop.run_in_executor(None, fetch_work)
+        editions_data = await loop.run_in_executor(None, fetch_editions)
+
+        # ✅ DESCRIPTION EXTRACTION
+        description = None
+        work_desc = work.get("description")
+        if isinstance(work_desc, dict):
+            description = work_desc.get("value")
+        else:
+            description = work_desc
+
+        # ✅ PUBLICATION EXTRACTION
+        publication = "UNKNOWN"
+        publish_year = None
+        editions = editions_data.get("entries", [])
+
+        if editions:
+            ed = editions[0]
+            if ed.get("publishers"):
+                publication = ed["publishers"][0]
+            publish_year = ed.get("publish_date")
+
+        return {
+            "title": work.get("title"),
+            "description": description,
+            "publications": publication,
+            "publish_year": publish_year,
+            "cover": f"https://covers.openlibrary.org/b/id/{work.get('covers', [None])[0]}-L.jpg"
+                     if work.get("covers") else None
+        }

@@ -24,6 +24,7 @@ const CustomNavbar = () => {
                 <Nav.Link as={Link} to="/discover" className="mx-2">Discover</Nav.Link>
                 <Nav.Link as={Link} to="/my-books" className="mx-2">My Books</Nav.Link>
                 <Nav.Link as={Link} to="/events" className="mx-2">Events</Nav.Link>
+                <Nav.Link as={Link} to="/community" className="mx-2">Community</Nav.Link>
               </>
             ) : (
               <>

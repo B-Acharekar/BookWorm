@@ -1,3 +1,4 @@
+from datetime import datetime # Change this
 import os
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -36,4 +37,23 @@ class FirebaseService:
             "userId": user_id,
             "bookId": book_id,
             "timestamp": firestore.SERVER_TIMESTAMP
+        })
+    def get_cached_events(self, pincode: str):
+        """Fetch events for a specific pincode if they were updated this month."""
+        current_month = datetime.now().strftime("%Y-%m")
+        docs = self.db.collection("event_cache") \
+            .where("pincode", "==", pincode) \
+            .where("month", "==", current_month).stream()
+        
+        events = [doc.to_dict().get("events") for doc in docs]
+        return events[0] if events else None
+
+    def cache_events(self, pincode: str, events: List[Dict]):
+        """Store AI-fetched events in Firestore."""
+        current_month = datetime.now().strftime("%Y-%m")
+        self.db.collection("event_cache").add({
+            "pincode": pincode,
+            "month": current_month,
+            "events": events,
+            "createdAt": firestore.SERVER_TIMESTAMP
         })

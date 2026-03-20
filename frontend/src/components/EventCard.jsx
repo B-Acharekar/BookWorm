@@ -10,7 +10,7 @@ const EventCard = ({ event }) => {
       viewport={{ once: true }}
     >
       <span className="status-badge mb-2 bg-dark text-white">EVENT</span>
-      <h3 className="mb-2">{event.name}</h3>
+      <h3 className="mb-2">{event.title}</h3>
       <p className="fw-bold mb-1">📍 {event.location}</p>
       <p className="text-muted small mb-3">📅 {event.date}</p>
 1      <p>{event.description}</p>
