@@ -8,6 +8,7 @@ import BrutalButton from './components/ui/BrutalButton';
 import Navbar from './components/layout/Navbar';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { BookProvider } from './context/BookContext';
+import { ThemeProvider } from './context/ThemeContext';
 import PageContainer from './components/layout/PageContainer';
 import SectionHeader from './components/ui/SectionHeader';
 import Community from './pages/community/community';
@@ -22,6 +23,15 @@ const MyBooks = lazy(() => import('./pages/dashboard/MyBooks'));
 const Events = lazy(() => import('./pages/dashboard/Events'));
 const Profile = lazy(() => import('./pages/dashboard/Profile'));
 const BookDetails = lazy(() => import('./pages/books/BookDetails'));
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const AdminLogin = lazy(() => import('./pages/public/AdminLogin'));
+
+// Loading State
+const PageLoader = () => (
+  <PageContainer className="text-center py-5">
+    <SectionHeader title="LOADING CHAPTER..." align="center" />
+  </PageContainer>
+);
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -38,17 +48,27 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
-// Loading State
-const PageLoader = () => (
-  <PageContainer className="text-center py-5">
-    <SectionHeader title="LOADING CHAPTER..." align="center" />
-  </PageContainer>
-);
+// Admin Route Component
+const AdminRoute = ({ children }) => {
+  const { user, isAdmin, loading } = useAuth();
+  
+  if (loading) return (
+    <PageContainer className="text-center">
+      <SectionHeader title="VERIFYING CLEARANCE..." align="center" />
+    </PageContainer>
+  );
 
-function App() {
+  if (!user) return <Navigate to="/login/admin" replace />;
+  if (!isAdmin) return <Navigate to="/" replace />;
+
+  return children;
+};
+
+const App = () => {
   return (
     <AuthProvider>
-      <BookProvider>
+      <ThemeProvider>
+        <BookProvider>
         <Router>
           <div className="app-wrapper d-flex flex-column min-vh-100">
             <Navbar />
@@ -59,6 +79,7 @@ function App() {
                   <Route path="/" element={<Landing />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Signup />} />
+                  <Route path="/login/admin" element={<AdminLogin />} />
                   <Route path="/discover" element={<Discover />} />
                   <Route path="/events" element={<Events />} />
 
@@ -68,6 +89,9 @@ function App() {
                   <Route path="/community" element={<ProtectedRoute><Community /></ProtectedRoute>} />
                   <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                   <Route path="/book/:bookId" element={<BookDetails />} />
+                  
+                  {/* Admin Routes */}
+                  <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
 
                   {/* 404 Route */}
                   <Route path="*" element={
@@ -90,7 +114,8 @@ function App() {
             </footer>
           </div>
         </Router>
-      </BookProvider>
+        </BookProvider>
+      </ThemeProvider>
     </AuthProvider>
   );
 }

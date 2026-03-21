@@ -1,12 +1,10 @@
 import httpx
-import requests
 import asyncio
 
 BASE_URL = "https://openlibrary.org"
 
 class OpenLibraryService:
-
-    # 🔍 SEARCH BOOKS (Updated with limit and specific fields)
+    # 🔍 SEARCH BOOKS (Gallery/List View)
     async def search_books(self, query: str):
         async with httpx.AsyncClient() as client:
             try:
@@ -14,60 +12,102 @@ class OpenLibraryService:
                     f"{BASE_URL}/search.json",
                     params={
                         "q": query,
-                        "limit": 10,  # ⚡ fast response
-                        "fields":"title,author_name,first_publish_year,cover_i,key,ratings_average"
+                        "limit": 15,
+                        "fields": "title,author_name,first_publish_year,cover_i,key,ratings_average,subject"
                     },
-                    timeout=3.0
+                    timeout=10.0
                 )
                 data = res.json()
-                return data.get("docs", [])
-            except Exception:
+                docs = data.get("docs", [])
+                
+                processed = []
+                for doc in docs:
+                    key = doc.get("key", "")
+                    work_id = key.replace("/works/", "")
+                    processed.append({
+                        "id": work_id,
+                        "bookId": work_id, # Matches your React frontend's case-sensitivity
+                        "title": doc.get("title", "Not available"),
+                        "author": ", ".join(doc.get("author_name", [])) if doc.get("author_name") else "Unknown Author",
+                        "publishedDate": str(doc.get("first_publish_year", "N/A")),
+                        "coverImage": f"https://covers.openlibrary.org/b/id/{doc.get('cover_i')}-L.jpg" if doc.get("cover_i") else None,
+                        "rating": round(doc.get("ratings_average", 0), 1),
+                        "genres": doc.get("subject", [])[:3]
+                    })
+                return processed
+            except Exception as e:
+                print(f"Search Error: {e}")
                 return []
 
-    # 📖 FULL BOOK DETAILS
+    # 👤 PRIVATE HELPER: Fetch Author Name from Key
+    async def _get_author_name(self, client, author_key):
+        try:
+            res = await client.get(f"{BASE_URL}{author_key}.json", timeout=5.0)
+            if res.status_code == 200:
+                return res.json().get("name", "Unknown Author")
+        except:
+            pass
+        return "Unknown Author"
+
+    # 📖 FULL BOOK DETAILS (Single Book View)
     async def get_full_book(self, work_id: str):
-        loop = asyncio.get_event_loop()
+        # Normalize ID
+        api_work_id = work_id if work_id.startswith("/works/") else f"/works/{work_id}"
+        raw_id = work_id.replace("/works/", "")
 
-        # Normalize work_id
-        if not work_id.startswith("/works/"):
-            work_id = f"/works/{work_id}"
+        async with httpx.AsyncClient() as client:
+            try:
+                url = f"{BASE_URL}{api_work_id}.json"
+                res = await client.get(url, timeout=10.0)
+                if res.status_code != 200: 
+                    return None
+                
+                work = res.json()
 
-        def fetch_work():
-            url = f"{BASE_URL}{work_id}.json"
-            return requests.get(url, timeout=5).json()
+                # 1. FIX: Description (String vs Dict)
+                desc_raw = work.get("description", "Description not available.")
+                if isinstance(desc_raw, dict):
+                    description = desc_raw.get("value", "Description not available.")
+                else:
+                    description = desc_raw
 
-        def fetch_editions():
-            url = f"{BASE_URL}{work_id}/editions.json"
-            return requests.get(url, timeout=5).json()
+                # 2. FIX: Author Name (Fetch if key exists)
+                author_names = "Unknown Author"
+                authors_list = work.get("authors", [])
+                if authors_list:
+                    # Get the first author's key and fetch their name
+                    first_author_key = authors_list[0].get("author", {}).get("key")
+                    if first_author_key:
+                        author_names = await self._get_author_name(client, first_author_key)
 
-        # Run blocking requests in parallel executors
-        work = await loop.run_in_executor(None, fetch_work)
-        editions_data = await loop.run_in_executor(None, fetch_editions)
+                # 3. FIX: Genres (Subjects)
+                genres = work.get("subjects") or work.get("subject") or []
 
-        # ✅ DESCRIPTION EXTRACTION
-        description = None
-        work_desc = work.get("description")
-        if isinstance(work_desc, dict):
-            description = work_desc.get("value")
-        else:
-            description = work_desc
+                # 4. FIX: Published Date (Using 'created' as source of truth for Works)
+                pub_date = work.get("first_publish_date")
+                if not pub_date and "created" in work:
+                    # Extract '2020' from '2020-08-28T19:49:24.483076'
+                    created_val = work["created"].get("value", "")
+                    if created_val:
+                        pub_date = created_val[:4]
 
-        # ✅ PUBLICATION EXTRACTION
-        publication = "UNKNOWN"
-        publish_year = None
-        editions = editions_data.get("entries", [])
+                # External Links
+                title_slug = work.get("title", "").replace(" ", "+")
 
-        if editions:
-            ed = editions[0]
-            if ed.get("publishers"):
-                publication = ed["publishers"][0]
-            publish_year = ed.get("publish_date")
-
-        return {
-            "title": work.get("title"),
-            "description": description,
-            "publications": publication,
-            "publish_year": publish_year,
-            "cover": f"https://covers.openlibrary.org/b/id/{work.get('covers', [None])[0]}-L.jpg"
-                     if work.get("covers") else None
-        }
+                return {
+                    "id": raw_id,
+                    "bookId": raw_id,
+                    "title": work.get("title", "Not available"),
+                    "author": author_names,
+                    "description": description,
+                    "genres": genres[:10], # Increased limit for Detail page
+                    "publishedDate": pub_date or "N/A",
+                    "coverImage": f"https://covers.openlibrary.org/b/id/{work.get('covers', [None])[0]}-L.jpg"
+                                  if work.get("covers") else None,
+                    "rating": 4.5, # Default placeholder for detail view
+                    "readLink": f"https://openlibrary.org/works/{raw_id}",
+                    "buyLink": f"https://www.amazon.in/s?k={title_slug}+book"
+                }
+            except Exception as e:
+                print(f"Error fetching book details: {e}")
+                return None

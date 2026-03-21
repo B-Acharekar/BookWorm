@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { InputGroup, Form } from 'react-bootstrap';
+import { InputGroup, Form, Container, Spinner } from 'react-bootstrap';
 import { useBooks } from '../../context/BookContext';
 import PageContainer from '../../components/layout/PageContainer';
-import SectionHeader from '../../components/ui/SectionHeader';
 import BookGrid from '../../components/books/BookGrid';
 import BrutalButton from '../../components/ui/BrutalButton';
+import BrutalCard from '../../components/ui/BrutalCard';
 import { FaSearch, FaTimes } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Discover = () => {
   const [query, setQuery] = useState('');
@@ -19,7 +20,6 @@ const Discover = () => {
   const dropdownRef = useRef(null);
   const debounceRef = useRef(null);
 
-  // 🔥 CLOSE ON OUTSIDE CLICK
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (!dropdownRef.current?.contains(e.target)) {
@@ -30,7 +30,6 @@ const Discover = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // ⚡ DEBOUNCED SEARCH (FAST + CLEAN)
   const handleInputChange = (e) => {
     const value = e.target.value;
     setQuery(value);
@@ -44,10 +43,9 @@ const Discover = () => {
       } else {
         setShowSuggestions(false);
       }
-    }, 250);
+    }, 400);
   };
 
-  // 🎯 KEYBOARD NAVIGATION
   const handleKeyDown = (e) => {
     if (!showSuggestions) return;
 
@@ -62,115 +60,145 @@ const Discover = () => {
     }
 
     if (e.key === "Enter" && activeIndex >= 0) {
+      e.preventDefault();
       const book = searchResults[activeIndex];
-      navigate(`/book/${book.id}`, { state: { book } });
+      const bookId = book.id || book.work_key;
+      navigate(`/book/${bookId}`, { state: { book } });
       setShowSuggestions(false);
     }
   };
 
-  const brutalShadow = {
-    boxShadow: '10px 10px 0px #000'
-  };
-
   return (
-    <PageContainer className="px-2 py-3">
+    <PageContainer>
+      <Container className="py-5">
+        {/* EDITORIAL HERO */}
+        <div className="text-center mb-5 py-5">
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="display-3 fw-bold mb-3 text-premium-gradient serif"
+          >
+            The City Archive
+          </motion.h1>
+          <motion.div 
+            initial={{ width: 0 }}
+            animate={{ width: '60px' }}
+            className="mx-auto title-underline mb-4"
+          />
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="lead text-secondary max-w-xl mx-auto fw-medium"
+          >
+            Explore millions of volumes from the Open Library nodes. Structured metadata for the modern reader.
+          </motion.p>
+        </div>
 
-      {/* 🔥 SEARCH HERO */}
-      <div className="bg-primary border border-4 border-dark p-4 mb-3 position-relative" style={brutalShadow}>
-        <SectionHeader
-          title="SEARCH_ENGINE"
-          subtitle="TYPE → THINK → DISCOVER"
-          align="left"
-          className="mb-3 text-white"
-        />
-
-        <Form className="position-relative" ref={dropdownRef}>
-          <InputGroup className="bg-white border border-4 border-dark p-1">
-
-            <Form.Control
-              placeholder="TYPE ANY BOOK..."
-              className="border-0 fw-black text-uppercase p-3"
-              style={{ fontSize: '1.4rem' }}
-              value={query}
-              onChange={handleInputChange}
-              onKeyDown={handleKeyDown}
-              onFocus={() => query.length > 2 && setShowSuggestions(true)}
-            />
-
-            {query && (
-              <button
-                type="button"
-                className="bg-transparent border-0 px-3"
-                onClick={() => setQuery('')}
-              >
-                <FaTimes />
-              </button>
-            )}
-
-            <BrutalButton variant="dark" className="px-4">
-              <FaSearch />
-            </BrutalButton>
-          </InputGroup>
-
-          {/* 🔥 MODERN DROPDOWN */}
-          {showSuggestions && (
-            <div
-              className="position-absolute w-100 mt-2 bg-white border border-4 border-dark"
-              style={{ ...brutalShadow, zIndex: 999 }}
-            >
-              {/* ⚡ LOADING SKELETON */}
-              {loading && (
-                <div className="p-3 fw-bold text-center">
-                  ⚡ SEARCHING...
-                </div>
-              )}
-
-              {!loading && searchResults.slice(0, 6).map((book, index) => (
-                <div
-                  key={book.id}
-                  className={`d-flex align-items-center gap-3 p-3 border-bottom border-2 border-dark ${
-                    index === activeIndex ? "bg-warning" : ""
-                  }`}
-                  style={{ cursor: 'pointer' }}
-                  onMouseEnter={() => setActiveIndex(index)}
-                  onClick={() => {
-                    navigate(`/book/${book.id}`, { state: { book } });
-                    setShowSuggestions(false);
-                  }}
+        {/* SEARCH BAR */}
+        <div className="max-w-2xl mx-auto position-relative mb-5" ref={dropdownRef}>
+          <BrutalCard className="p-1 border-0 shadow-lg" style={{ borderRadius: '100px' }}>
+            <InputGroup className="border-0 bg-transparent">
+              <div className="d-flex align-items-center ps-4 text-accent">
+                <FaSearch size={20} />
+              </div>
+              <Form.Control
+                placeholder="Search by title, author, or ISBN..."
+                className="border-0 shadow-none px-3 py-3 fs-5 bg-transparent"
+                value={query}
+                onChange={handleInputChange}
+                onKeyDown={handleKeyDown}
+                onFocus={() => query.length > 2 && setShowSuggestions(true)}
+              />
+              {query && (
+                <button
+                  type="button"
+                  className="bg-transparent border-0 px-3 text-secondary hover:text-accent transition-colors"
+                  onClick={() => setQuery('')}
                 >
-                  <img
-                    src={book.cover}
-                    width="50"
-                    height="70"
-                    className="border border-2 border-dark"
-                  />
-
-                  <div>
-                    <div className="fw-black text-uppercase">
-                      {book.title}
-                    </div>
-                    <div className="small opacity-75">
-                      {book.author}
-                    </div>
-                  </div>
-                </div>
-              ))}
-
-              {!loading && searchResults.length === 0 && (
-                <div className="p-3 text-center fw-bold">
-                  NO RESULTS FOUND
-                </div>
+                  <FaTimes />
+                </button>
               )}
-            </div>
-          )}
-        </Form>
-      </div>
+              <BrutalButton 
+                variant="primary" 
+                className="px-5 ms-2 my-1 me-1"
+                onClick={() => query.length > 2 && searchBooks(query)}
+              >
+                Search
+              </BrutalButton>
+            </InputGroup>
+          </BrutalCard>
 
-      {/* 🔥 GRID */}
-      <div>
-        <BookGrid books={searchResults} myBooks={myBooks} loading={loading} />
-      </div>
+          {/* SUGGESTIONS DROPDOWN */}
+          <AnimatePresence>
+            {showSuggestions && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                className="position-absolute w-100 mt-3 bg-surface rounded-2xl shadow-xl overflow-hidden glass"
+                style={{ zIndex: 1000, borderRadius: '24px' }}
+              >
+                {loading ? (
+                  <div className="p-5 text-center">
+                    <Spinner animation="border" size="sm" className="text-accent me-2" />
+                    <span className="text-secondary fw-semibold">Accessing archive...</span>
+                  </div>
+                ) : (
+                  <div className="py-2">
+                    {searchResults.length > 0 ? (
+                      searchResults.slice(0, 6).map((book, index) => (
+                        <div
+                          key={book.work_key}
+                          className={`d-flex align-items-center gap-3 p-3 transition-colors ${
+                            index === activeIndex ? "bg-accent bg-opacity-10" : "hover:bg-bg"
+                          }`}
+                          style={{ cursor: 'pointer' }}
+                          onMouseEnter={() => setActiveIndex(index)}
+                          onClick={() => {
+                            const bookId = book.id || book.work_key;
+                            navigate(`/book/${bookId}`, { state: { book } });
+                            setShowSuggestions(false);
+                          }}
+                        >
+                          <div className="flex-shrink-0">
+                            <img
+                              src={book.coverImage}
+                              alt={book.title}
+                              width="40"
+                              height="60"
+                              className="rounded shadow-sm object-fit-cover bg-light"
+                            />
+                          </div>
+                          <div className="flex-grow-1 overflow-hidden">
+                            <div className="fw-bold text-truncate text-text text-sm">{book.title}</div>
+                            <div className="small text-secondary text-truncate">{book.author || "Unknown Author"}</div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="p-4 text-center text-secondary">
+                        <p className="mb-0 fw-semibold small text-uppercase tracking-wider">No volumes found</p>
+                        <p className="small mb-0">Try another search or check the spelling.</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
+        {/* RESULTS GRID */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="mt-5 pt-4"
+        >
+          <BookGrid books={searchResults} myBooks={myBooks} loading={loading} />
+        </motion.div>
+      </Container>
     </PageContainer>
   );
 };

@@ -39,3 +39,22 @@ class AgentState(BaseModel):
     history: Optional[List[Dict[str, str]]] = None
     context: Optional[Dict[str, Any]] = {}
     response: Optional[Dict[str, Any]] = None
+
+class ReviewRequest(BaseModel):
+    user_id: str
+    user_name: Optional[str] = "Anonymous"
+    book_id: str
+    rating: float = Field(..., ge=0, le=5)
+    comment: str
+
+class StatusUpdateRequest(BaseModel):
+    user_id: str
+    book_id: str
+    status: str
+    book_data: Optional[Dict[str, Any]] = None
+    is_favorite: Optional[bool] = False
+
+class FavoriteRequest(BaseModel):
+    user_id: str
+    book_id: str
+    is_favorite: bool

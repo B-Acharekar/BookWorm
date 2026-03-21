@@ -4,8 +4,8 @@
   "description": "Discover books and track your reading in Mumbai.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f5f3ee",
-  "theme_color": "#2f855a",
+  "background_color": "#F9F7F2",
+  "theme_color": "#C2A878",
   "icons": [
     {
       "src": "/icons/icon-192.png",

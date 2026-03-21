@@ -11,19 +11,7 @@ async def get_recommendations(user_id: str = "test_user"):
     return result["response"]
 
 @router.get("/events")
-async def get_events(query: str = "Upcoming book events in Mumbai"):
-    state = AgentState(query=query)
-    result = await bookworm_graph.ainvoke(state)
-    return result["response"]
-
-@router.get("/book-sales")
-async def get_sales(query: str = "Mumbai bookstore sales"):
-    state = AgentState(query=query)
-    result = await bookworm_graph.ainvoke(state)
-    return result["response"]
-
-@router.post("/chat")
-async def chat(query: str, user_id: str = "test_user"):
-    state = AgentState(query=query, context={"user_id": user_id})
+async def get_events(location: str = "Mumbai"):
+    state = AgentState(query=f"Upcoming book events in {location}", context={"location": location})
     result = await bookworm_graph.ainvoke(state)
     return result["response"]

@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useAuth } from "./AuthContext";
-import { getUserBooks, updateBookStatus, saveBookToUser } from "../firebase/firestore";
-import axios from "axios";
+import { bookService } from "../services/api";
 
 const BookContext = createContext();
 
@@ -13,17 +12,20 @@ export const BookProvider = ({ children }) => {
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (user) fetchMyBooks();
-    else setMyBooks([]);
+  const fetchMyBooks = useCallback(async () => {
+    if (!user) return;
+    try {
+      const res = await bookService.getLibrary(user.uid);
+      setMyBooks(res.data.books);
+    } catch (err) {
+      console.error("Failed to fetch library:", err);
+    }
   }, [user]);
 
-  const fetchMyBooks = async () => {
-    const books = await getUserBooks(user.uid);
-    setMyBooks(books);
-  };
+  useEffect(() => {
+    fetchMyBooks();
+  }, [fetchMyBooks]);
 
-  // 🔥 BACKEND SEARCH (UPGRADED)
   const searchBooks = useCallback(async (query) => {
     if (!query.trim()) {
       setSearchResults([]);
@@ -32,26 +34,9 @@ export const BookProvider = ({ children }) => {
 
     setLoading(true);
     try {
-      const res = await axios.get(
-        `http://localhost:8000/api/books/search?query=${query}`
-      );
-
-      const formatted = res.data.results.map(book => ({
-        id: book.work_key.split("/").pop(),
-        work_key: book.work_key,
-
-        title: book.title,
-        author: book.author,
-        cover: book.cover || "https://via.placeholder.com/150",
-
-        publish_year: book.publish_year,
-        rating: book.rating || null,
-
-        // ❌ NO description here (search API doesn’t give it)
-      }));
-
-      setSearchResults(formatted);
-
+      const res = await bookService.search(query);
+      // The backend now returns a refined list with 'work_key' as the raw ID
+      setSearchResults(res.data.results || []);
     } catch (err) {
       console.error("Search failed:", err);
     } finally {
@@ -59,16 +44,43 @@ export const BookProvider = ({ children }) => {
     }
   }, []);
 
-  const addToMyBooks = async (book, status) => {
+  const updateStatus = async (book, status, isFavorite = null) => {
     if (!user) return;
-    await saveBookToUser(user.uid, book, status);
-    fetchMyBooks();
+    try {
+      // User requested: Save FULL object
+      // { bookId, title, author, cover, status, isFavorite, rating, createdAt, updatedAt }
+      const bookId = book.id || book.bookId;
+      const bookData = {
+        bookId: bookId,
+        title: book.title,
+        author: book.author,
+        coverImage: book.coverImage || book.cover,
+        status: status,
+        isFavorite: isFavorite !== null ? isFavorite : (book.isFavorite || false),
+        rating: book.rating || 0,
+        genres: book.genres || [],
+        updatedAt: new Date().toISOString()
+      };
+      
+      await bookService.updateStatus(user.uid, bookData.bookId, status, bookData, bookData.isFavorite);
+      await fetchMyBooks();
+    } catch (err) {
+      console.error("Status update failed:", err);
+    }
   };
 
-  const updateStatus = async (bookId, status) => {
+  const addToLibrary = async (book, status = "to_read") => {
+    await updateStatus(book, status);
+  };
+
+  const toggleFavorite = async (bookId, isFavorite) => {
     if (!user) return;
-    await updateBookStatus(user.uid, bookId, status);
-    fetchMyBooks();
+    try {
+      await bookService.toggleFavorite(user.uid, bookId, isFavorite);
+      await fetchMyBooks();
+    } catch (err) {
+      console.error("Toggle favorite failed:", err);
+    }
   };
 
   return (
@@ -77,10 +89,12 @@ export const BookProvider = ({ children }) => {
       searchResults,
       loading,
       searchBooks,
-      addToMyBooks,
-      updateStatus
+      updateStatus,
+      addToLibrary,
+      toggleFavorite,
+      fetchMyBooks
     }}>
       {children}
     </BookContext.Provider>
   );
-};
+};

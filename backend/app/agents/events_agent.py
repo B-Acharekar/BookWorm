@@ -23,5 +23,12 @@ async def events_agent(state: AgentState):
     event_prompt = f"{system_prompt}\nEvents: {mumbai_events}\nUser Query: {state.query}"
     response = await gemini_service.generate_content(event_prompt)
     
-    state.response = {"events": response}
+    # Robust JSON parsing
+    try:
+        cleaned = response.replace("```json", "").replace("```", "").strip()
+        data = json.loads(cleaned)
+        state.response = {"events": data.get("events", data) if isinstance(data, dict) else data}
+    except:
+        state.response = {"events": []}
+        
     return state

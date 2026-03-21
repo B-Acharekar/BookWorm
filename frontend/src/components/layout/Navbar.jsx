@@ -3,56 +3,60 @@ import { Navbar, Nav, Container } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import BrutalButton from '../ui/BrutalButton';
-import { FaBookOpen } from 'react-icons/fa';
+import ThemeToggle from '../ui/ThemeToggle';
+import { FaBook } from 'react-icons/fa';
 
 const CustomNavbar = () => {
-  const { user, loginWithGoogle, logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   return (
-    <Navbar bg="white" expand="lg" className="border-bottom border-4 border-dark py-3 sticky-top shadow-none">
+    <Navbar expand="lg" className="glass py-3 sticky-top">
       <Container>
-        <Navbar.Brand as={Link} to="/" className="d-flex align-items-center fw-black fs-3">
-          <FaBookOpen className="me-2" /> BOOKWORM
+        <Navbar.Brand as={Link} to="/" className="d-flex align-items-center fw-bold fs-3 serif">
+          <FaBook className="me-2 text-accent" /> BOOKWORM
         </Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" className="sharp-corners border-3 border-dark" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="mx-auto fw-bold text-uppercase">
+        
+        <div className="d-flex align-items-center order-lg-3 gap-2">
+          <ThemeToggle />
+          {user ? (
+            <div className="d-flex align-items-center gap-3 ms-2">
+              <Link to="/profile" className="d-none d-md-block">
+                <img 
+                  src={user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName || 'User'}&background=random`} 
+                  alt="Profile" 
+                  className="rounded-full shadow-sm" 
+                  style={{ width: '36px', height: '36px', objectFit: 'cover' }}
+                />
+              </Link>
+              <BrutalButton variant="secondary" className="px-3 py-2 small" onClick={logout}>
+                Logout
+              </BrutalButton>
+            </div>
+          ) : (
+            <BrutalButton variant="primary" className="ms-2" onClick={() => navigate('/signup')}>
+              Sign Up
+            </BrutalButton>
+          )}
+          <Navbar.Toggle aria-controls="basic-navbar-nav" className="border-0 shadow-none ms-2" />
+        </div>
+
+        <Navbar.Collapse id="basic-navbar-nav" className="order-lg-2">
+          <Nav className="mx-auto fw-medium">
             {user ? (
               <>
-                <Nav.Link as={Link} to="/dashboard" className="mx-2">Dashboard</Nav.Link>
-                <Nav.Link as={Link} to="/discover" className="mx-2">Discover</Nav.Link>
-                <Nav.Link as={Link} to="/my-books" className="mx-2">My Books</Nav.Link>
-                <Nav.Link as={Link} to="/events" className="mx-2">Events</Nav.Link>
-                <Nav.Link as={Link} to="/community" className="mx-2">Community</Nav.Link>
+                <Nav.Link as={Link} to="/dashboard" className="px-3">Dashboard</Nav.Link>
+                <Nav.Link as={Link} to="/discover" className="px-3">Discover</Nav.Link>
+                <Nav.Link as={Link} to="/my-books" className="px-3">My Books</Nav.Link>
+                <Nav.Link as={Link} to="/events" className="px-3">Events</Nav.Link>
               </>
             ) : (
               <>
-                <Nav.Link as={Link} to="/discover" className="mx-2">Discover</Nav.Link>
-                <Nav.Link as={Link} to="/events" className="mx-2">Events</Nav.Link>
+                <Nav.Link as={Link} to="/discover" className="px-3">Library</Nav.Link>
+                <Nav.Link as={Link} to="/events" className="px-3">Local Events</Nav.Link>
               </>
             )}
           </Nav>
-          <div className="d-flex align-items-center mt-3 mt-lg-0">
-            {user ? (
-              <>
-                <Link to="/profile" className="me-3">
-                  <img 
-                    src={user.photoURL} 
-                    alt="Profile" 
-                    className="rounded-circle border border-2 border-dark" 
-                    style={{ width: '40px', height: '40px' }}
-                  />
-                </Link>
-                <BrutalButton variant="secondary" onClick={logout}>Logout</BrutalButton>
-              </>
-            ) : (
-              <>
-                <Link to="/login" className="nav-link fw-bold text-uppercase me-3 d-none d-lg-block">Login</Link>
-                <BrutalButton variant="primary" onClick={() => navigate('/signup')}>Get Started</BrutalButton>
-              </>
-            )}
-          </div>
         </Navbar.Collapse>
       </Container>
     </Navbar>

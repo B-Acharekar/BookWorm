@@ -10,6 +10,8 @@ from dotenv import load_dotenv
 import os
 from pathlib import Path
 
+from app.routes import admin
+
 # Load env
 env_path = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(dotenv_path=env_path)
@@ -30,6 +32,7 @@ app.add_middleware(
 # Routes
 app.include_router(recommendation_routes.router)
 app.include_router(books.router, prefix="/api/books", tags=["Books"])
+app.include_router(admin.router)
 
 @app.get("/")
 async def root():

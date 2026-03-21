@@ -1,68 +1,70 @@
 from fastapi import APIRouter, HTTPException
 from app.services.openlibrary_service import OpenLibraryService
+from app.services.firebase_service import FirebaseService
+from app.models.schemas import StatusUpdateRequest, ReviewRequest, FavoriteRequest
 from rapidfuzz import fuzz
 
 router = APIRouter()
 service = OpenLibraryService()
+firebase = FirebaseService()
 
-# 🔍 SEARCH BOOKS (With Smart Scoring & Ratings)
+# 🔍 SEARCH BOOKS
 @router.get("/search")
 async def search_books(query: str):
     try:
-        results = await service.search_books(query)
-        q = query.lower()
-
-        # 🔥 SMART SCORING FUNCTION
-        def score(book):
-            title = book.get("title", "").lower()
-
-            # 1. Exact match gets highest priority
-            if title == q:
-                return 100
-
-            # 2. Simple partial match (substring)
-            if q in title:
-                return 80
-
-            # 3. Fuzzy match (handles typos or close variations)
-            # partial_ratio is great for finding 'Harry Potter' inside longer titles
-            return fuzz.partial_ratio(q, title)
-
-        # 🔥 SORT RESULTS by score (highest first)
-        sorted_books = sorted(results, key=score, reverse=True)
-
-        books = []
-        for b in sorted_books[:10]:
-            books.append({
-                "title": b.get("title"),
-                "author": ", ".join(b.get("author_name", [])) if b.get("author_name") else "Unknown",
-                "publish_year": b.get("first_publish_year"),
-                "cover": f"https://covers.openlibrary.org/b/id/{b.get('cover_i')}-M.jpg"
-                         if b.get("cover_i") else None,
-                "work_key": b.get("key"),
-
-                # ⭐ NEW: Ratings (rounded to 1 decimal place)
-                "rating": round(b.get("ratings_average", 0), 1)
-                           if b.get("ratings_average") else None
-            })
-
+        books = await service.search_books(query)
+        for b in books:
+            # FIX: Changed from b["work_key"] to b["id"]
+            local_rating = firebase.get_average_rating(b["id"])
+            if local_rating:
+                b["rating"] = local_rating
         return {"results": books}
-
     except Exception as e:
-        # It's helpful to log 'e' here for debugging
+        # This will now print the actual error in your terminal if it fails again
+        print(f"Router Search Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
-# 📖 BOOK DETAILS (DESCRIPTION + PUBLICATION)
-@router.get("/book/{work_id:path}") # Added :path to allow IDs like /works/OL123W
+# 📖 BOOK DETAILS
+@router.get("/book/{work_id:path}")
 async def get_book_details(work_id: str):
     try:
+        # The service now correctly handles raw IDs
         book = await service.get_full_book(work_id)
-
         if not book:
             raise HTTPException(status_code=404, detail="Book not found")
-
+        
+        # Merge local rating
+        raw_id = work_id.replace("/works/", "")
+        local_rating = firebase.get_average_rating(raw_id)
+        if local_rating:
+            book["rating"] = local_rating
         return book
-
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# 📚 USER LIBRARY MANAGEMENT
+@router.get("/library/{user_id}")
+async def get_library(user_id: str):
+    return {"books": firebase.get_user_library(user_id)}
+
+@router.post("/status")
+async def update_status(req: StatusUpdateRequest):
+    firebase.update_book_status(req.user_id, req.book_id, req.book_data, req.status, req.is_favorite)
+    return {"message": "Status updated"}
+
+@router.post("/favorite")
+async def toggle_favorite(req: FavoriteRequest):
+    firebase.toggle_favorite(req.user_id, req.book_id, req.is_favorite)
+    return {"message": "Favorite toggled"}
+
+
+# ⭐ REVIEWS & RATINGS
+@router.get("/reviews/{book_id}")
+async def get_reviews(book_id: str):
+    return {"reviews": firebase.get_book_reviews(book_id)}
+
+@router.post("/review")
+async def add_review(req: ReviewRequest):
+    firebase.add_review(req.user_id, req.book_id, req.rating, req.comment, req.user_name)
+    return {"message": "Review added"}

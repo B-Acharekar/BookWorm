@@ -1,54 +1,41 @@
 import React from 'react';
 import BrutalCard from '../ui/BrutalCard';
-import BrutalButton from '../ui/BrutalButton';
+import { FaCalendarAlt, FaMapMarkerAlt, FaExternalLinkAlt } from 'react-icons/fa';
 
 const EventCard = ({ event }) => {
-  // Generates a Google Search link for the specific event
-  // Updated to include the year 2026 for high-relevance search
-  const handleKnowMore = () => {
-    const query = encodeURIComponent(`${event.title} ${event.location} March 2026`);
-    window.open(`https://www.google.com/search?q=${query}`, '_blank');
-  };
-
   return (
-    <BrutalCard className="h-100 d-flex flex-column border-4 border-dark shadow-none bg-white p-4">
-      {/* Category Badge */}
-      <div className="mb-3">
-        <span className="bg-primary text-white px-3 py-1 fw-black text-uppercase border-2 border-dark" style={{ fontSize: '0.8rem' }}>
-          LIT EVENT
-        </span>
-      </div>
+    <BrutalCard 
+      className="p-4 bg-surface border-0 shadow-sm hover:shadow-md transition-all group" 
+      style={{ borderRadius: '24px' }}
+    >
+      <h5 className="serif fw-bold mb-3 line-height-1 group-hover:text-accent transition-colors">{event.title}</h5>
       
-      {/* Title */}
-      <h3 className="fw-black mb-3 text-uppercase lh-1" style={{ letterSpacing: '-1.5px', fontSize: '1.75rem' }}>
-        {event.title}
-      </h3>
-      
-      {/* Metadata */}
-      <div className="mb-4">
-        <div className="d-flex align-items-center mb-1">
-          <span className="me-2">📍</span>
-          <span className="fw-bold text-uppercase" style={{ fontSize: '0.9rem' }}>{event.location}</span>
+      <div className="d-flex flex-column gap-2 mb-4">
+        <div className="d-flex align-items-center gap-2 text-secondary small fw-medium">
+          <FaCalendarAlt className="text-accent" />
+          {event.date || 'TBD'}
         </div>
-        <div className="d-flex align-items-center">
-          <span className="me-2">📅</span>
-          <span className="fw-bold text-muted small">{event.date}</span>
+        <div className="d-flex align-items-center gap-2 text-secondary small fw-medium">
+          <FaMapMarkerAlt className="text-accent" />
+          {event.location || 'Online'}
         </div>
       </div>
-      
-      {/* Description with Brutalist Left Border */}
-      <p className="flex-grow-1 border-start border-4 border-dark ps-3 mb-4 fw-medium" style={{ fontSize: '1.05rem', lineHeight: '1.4' }}>
-        {event.description}
-      </p>
 
-      {/* Action Button */}
-      <BrutalButton 
-        variant="accent" 
-        className="w-100 py-3 text-uppercase fw-black border-3 border-dark"
-        onClick={handleKnowMore}
-      >
-        KNOW MORE
-      </BrutalButton>
+      <div className="d-flex justify-content-between align-items-end pt-3 border-top border-border">
+         <span className="small text-uppercase fw-bold text-accent tracking-widest" style={{ fontSize: '0.7rem' }}>
+           {event.category || 'Literary Event'}
+         </span>
+         {event.link && (
+           <a 
+             href={event.link} 
+             target="_blank" 
+             rel="noopener noreferrer"
+             className="text-text hover:text-accent transition-colors"
+           >
+             <FaExternalLinkAlt size={14} />
+           </a>
+         )}
+      </div>
     </BrutalCard>
   );
 };
