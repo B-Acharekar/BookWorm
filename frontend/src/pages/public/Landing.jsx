@@ -5,6 +5,7 @@ import BrutalButton from '../../components/ui/BrutalButton';
 import BookCard from '../../components/books/BookCard';
 import SectionHeader from '../../components/ui/SectionHeader';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -32,89 +33,97 @@ const Landing = () => {
   const secondaryBook = exampleBooks[(currentIndex + 1) % exampleBooks.length];
 
   return (
-    <div className="bg-white">
-      {/* Hero Section */}
-      <section className="border-bottom border-4 border-dark overflow-hidden">
+    <div className="bg-white min-vh-100">
+      {/* Hero Section: Soft UI approach */}
+      <section className="py-5 overflow-hidden">
         <PageContainer>
-          <Row className="align-items-center py-3 gx-3">
-            <Col lg={7} className="mb-5 mb-lg-0">
-              <Badge className="sharp-corners px-3 py-2 fs-6 mb-4 bg-dark text-white">
-                MUMBAI BOOK DISCOVERY
+          <Row className="align-items-center py-5 gx-5">
+            <Col lg={7} className="mb-5 mb-lg-0 text-center text-lg-start">
+              <Badge
+                pill
+                bg="none" // 1. Tells Bootstrap not to apply a default theme color
+                className="px-4 py-2 mb-4 border-0 shadow-sm"
+                style={{
+                  backgroundColor: '#F1EDE4 !important', // 2. !important ensures the cream color sticks
+                  color: '#8C6D46',
+                  fontSize: '0.85rem',
+                  letterSpacing: '1px',
+                  display: 'inline-block' // Ensures padding behaves correctly
+                }}
+              >
+                ✦ CURATED READING EXPERIENCE
               </Badge>
-              <h1 className="display-1 fw-black mb-4 lh-1 text-uppercase">
+
+              <h1 className="display-2 fw-bold mb-4 serif tracking-tight text-dark">
                 Discover <br />
-                <span style={{ color: 'var(--primary-green)' }}>Great Books</span> <br />
-                Around You.
+                <span style={{ color: '#A67C52' }} className="italic">Great Books</span> <br />
+                In Your Community.
               </h1>
-              <p className="lead fw-bold mb-5 pe-lg-5 text-muted">
-                A professional platform where Mumbai readers discover architectural gems, track reading progress, and explore elite literary events.
+
+              <p className="lead mb-5 pe-lg-5 text-secondary opacity-75">
+                A sophisticated platform for readers to explore architectural literature,
+                track their personal library progress, and connect with local literary culture.
               </p>
-              <div className="d-flex flex-wrap gap-4">
-                <BrutalButton variant="primary" className="fs-5 px-5 py-3" onClick={() => navigate('/signup')}>
+
+              <div className="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
+                <BrutalButton variant="primary" className="rounded-pill px-5 py-3 shadow-lg" onClick={() => navigate('/signup')}>
                   Start Reading
                 </BrutalButton>
-                <BrutalButton variant="secondary" className="fs-5 px-5 py-3" onClick={() => navigate('/discover')}>
+                <BrutalButton variant="outline-dark" className="rounded-pill px-5 py-3" onClick={() => navigate('/discover')}>
                   Browse Library
                 </BrutalButton>
               </div>
             </Col>
 
-            <Col lg={5}>
-              <div className="position-relative ps-lg-5" >
-                {/* Main Visible Card */}
-                <div
-                  key={`main-${primaryBook.id}`}
-                  className="position-relative z-3 animate-fade-in"
-                  style={{ transform: 'rotate(-2deg)', transition: 'all 0.5s ease-in-out' }}
-                >
-                  <BookCard book={primaryBook} status="FEATURED" showManage={false} />
-                </div>
+            <Col lg={5} className="d-flex justify-content-center">
+              <div className="position-relative" style={{ width: '100%', maxWidth: '400px' }}>
+                {/* Floating Decorative Elements */}
+                <div className="position-absolute top-0 start-0 w-100 h-100 bg-light rounded-5 rotate-3 z-n1 shadow-sm opacity-50"></div>
 
-                {/* Background "Stacked" Card */}
-                <div
-                  key={`sub-${secondaryBook.id}`}
-                  className="position-absolute top-0 start-0 z-2 d-none d-sm-block"
-                  style={{ 
-                    transform: 'rotate(5deg) translate(40px, 40px)', 
-                    width: '100%',
-                    opacity: 0.6 
-                  }}
-                >
-                  <BookCard book={secondaryBook} status="UP NEXT" showManage={false} />
-                </div>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={primaryBook.id}
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: -20, opacity: 0 }}
+                    transition={{ duration: 0.6, ease: "circOut" }}
+                    className="z-3"
+                  >
+                    <BookCard book={primaryBook} status="FEATURED" />
+                  </motion.div>
+                </AnimatePresence>
               </div>
             </Col>
           </Row>
         </PageContainer>
       </section>
 
-      {/* Features Section */}
-      <section className="bg-light border-bottom border-4 border-dark py-5">
-        <PageContainer>
+      {/* Features Section: Clean Grid */}
+      <section className="bg-light py-5 rounded-top-5 mt-5">
+        <PageContainer className="py-5">
           <SectionHeader
-            title="Built for Readers"
-            subtitle="Everything you need to manage your personal library in Mumbai."
+            title="Designed for Deep Work"
+            subtitle="Tools to help you focus on what matters most: the story."
             align="center"
           />
-          <Row className="mt-5">
-            <Col md={4} className="mb-4 mb-md-0">
-              <div className="brutal-card h-100 bg-white border border-4 border-dark p-4">
-                <h3 className="fw-black mb-3 text-uppercase">01. Discover</h3>
-                <p className="mb-0">Access the Open Library API to find millions of books across all genres and eras.</p>
-              </div>
-            </Col>
-            <Col md={4} className="mb-4 mb-md-0">
-              <div className="brutal-card h-100 bg-white border border-4 border-dark p-4">
-                <h3 className="fw-black mb-3 text-uppercase">02. Track</h3>
-                <p className="mb-0">Keep a detailed log of what you're reading, what you've finished, and what's next.</p>
-              </div>
-            </Col>
-            <Col md={4}>
-              <div className="brutal-card h-100 bg-white border border-4 border-dark p-4">
-                <h3 className="fw-black mb-3 text-uppercase">03. Events</h3>
-                <p className="mb-0">Stay updated with the latest literary festivals and author meets in Mumbai city.</p>
-              </div>
-            </Col>
+
+          <Row className="mt-5 g-4">
+            {[
+              { id: '01', t: 'Curated Discovery', d: 'Access deep-catalog insights and architectural gems through our integrated API.' },
+              { id: '02', t: 'Personal Archives', d: 'Maintain a clean, digital log of your reading journey and future aspirations.' },
+              { id: '03', t: 'Local Connectivity', d: 'Stay informed about relevant literary gatherings and cultural events in your area.' }
+            ].map((feature) => (
+              <Col md={4} key={feature.id}>
+                <motion.div
+                  whileHover={{ y: -10 }}
+                  className="h-100 bg-white border-0 p-5 shadow-sm rounded-4"
+                >
+                  <span className="text-muted fw-bold d-block mb-3 opacity-50">{feature.id}</span>
+                  <h4 className="fw-bold mb-3 serif">{feature.t}</h4>
+                  <p className="text-muted mb-0 lh-base">{feature.d}</p>
+                </motion.div>
+              </Col>
+            ))}
           </Row>
         </PageContainer>
       </section>
