@@ -23,7 +23,7 @@ const CustomNavbar = () => {
           className="d-flex align-items-center fw-bold fs-5 fs-lg-3 serif gap-2 text-gradient"
         >
           <Image
-            src="/public/icons/icon-512.png"
+            src="/icons/icon-512.png"
             alt="Bookworm Logo"
             style={{ width: '34px', height: '34px', objectFit: 'contain' }}
           />

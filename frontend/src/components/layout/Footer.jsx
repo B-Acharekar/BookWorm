@@ -10,7 +10,7 @@ const Footer = () => {
         <div className="text-center animate-fade-in">
           <div className="mb-3 d-flex justify-content-center">
             <img
-              src="/public/icons/icon-512.png" 
+              src="/icons/icon-512.png" 
               alt="Bookworm Logo"
               className="logo-img"
               style={{
