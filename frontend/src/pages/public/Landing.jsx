@@ -33,61 +33,63 @@ const Landing = () => {
   const secondaryBook = exampleBooks[(currentIndex + 1) % exampleBooks.length];
 
   return (
-    <div className="bg-white min-vh-100">
-      {/* Hero Section: Soft UI approach */}
-      <section className="py-5 overflow-hidden">
+    <div className="bg-bg min-vh-100 animate-fade-in">
+      {/* Hero Section: Editorial Premium Layout */}
+      <section className="py-5 overflow-hidden position-relative">
+        <div className="position-absolute top-0 end-0 opacity-10 pointer-events-none" style={{ transform: 'translate(20%, -20%)' }}>
+          <div className="bg-accent rounded-circle" style={{ width: '600px', height: '600px', filter: 'blur(120px)' }}></div>
+        </div>
+
         <PageContainer>
           <Row className="align-items-center py-5 gx-5">
-            <Col lg={7} className="mb-5 mb-lg-0 text-center text-lg-start">
-              <Badge
-                pill
-                bg="none" // 1. Tells Bootstrap not to apply a default theme color
-                className="px-4 py-2 mb-4 border-0 shadow-sm"
-                style={{
-                  backgroundColor: '#F1EDE4 !important', // 2. !important ensures the cream color sticks
-                  color: '#8C6D46',
-                  fontSize: '0.85rem',
-                  letterSpacing: '1px',
-                  display: 'inline-block' // Ensures padding behaves correctly
+            <Col lg={7} className="mb-5 mb-lg-0 text-center text-lg-start position-relative z-1">
+              <span 
+                className="d-inline-block px-3 py-1 mb-4 rounded-pill fw-bold text-uppercase tracking-widest shadow-sm"
+                style={{ 
+                  backgroundColor: 'var(--accent-soft)', 
+                  color: 'var(--accent-hover)', 
+                  fontSize: '0.75rem',
+                  border: '1px solid var(--accent)'
                 }}
               >
                 ✦ CURATED READING EXPERIENCE
-              </Badge>
+              </span>
 
-              <h1 className="display-2 fw-bold mb-4 serif tracking-tight text-dark">
+              <h1 className="display-2 fw-bold mb-4 serif tracking-tight text-gradient">
                 Discover <br />
-                <span style={{ color: '#A67C52' }} className="italic">Great Books</span> <br />
+                <span className="italic opacity-80">Great Books</span> <br />
                 In Your Community.
               </h1>
 
-              <p className="lead mb-5 pe-lg-5 text-secondary opacity-75">
-                A sophisticated platform for readers to explore architectural literature,
-                track their personal library progress, and connect with local literary culture.
+              <p className="lead mb-5 pe-lg-5 text-muted fw-medium">
+                A sophisticated platform for readers to explore literature,
+                track progress, and connect with local culture.
               </p>
 
               <div className="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
-                <BrutalButton variant="primary" className="rounded-pill px-5 py-3 shadow-lg" onClick={() => navigate('/signup')}>
+                <BrutalButton variant="primary" className="px-5 py-3" onClick={() => navigate('/signup')}>
                   Start Reading
                 </BrutalButton>
-                <BrutalButton variant="outline-dark" className="rounded-pill px-5 py-3" onClick={() => navigate('/discover')}>
+                <BrutalButton variant="outline-dark" className="px-5 py-3" onClick={() => navigate('/discover')}>
                   Browse Library
                 </BrutalButton>
               </div>
             </Col>
 
-            <Col lg={5} className="d-flex justify-content-center">
-              <div className="position-relative" style={{ width: '100%', maxWidth: '400px' }}>
-                {/* Floating Decorative Elements */}
-                <div className="position-absolute top-0 start-0 w-100 h-100 bg-light rounded-5 rotate-3 z-n1 shadow-sm opacity-50"></div>
+            <Col lg={5} className="d-flex justify-content-center position-relative">
+              <div className="position-relative w-100" style={{ maxWidth: '400px' }}>
+                <div 
+                  className="position-absolute translate-middle-x start-50 w-100 h-100 bg-surface rounded-lg shadow-xl z-n1" 
+                  style={{ transform: 'rotate(6deg) translateY(20px)', opacity: 0.5 }}
+                ></div>
 
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={primaryBook.id}
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: -20, opacity: 0 }}
-                    transition={{ duration: 0.6, ease: "circOut" }}
-                    className="z-3"
+                    initial={{ y: 30, opacity: 0, scale: 0.95 }}
+                    animate={{ y: 0, opacity: 1, scale: 1 }}
+                    exit={{ y: -30, opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                   >
                     <BookCard book={primaryBook} status="FEATURED" />
                   </motion.div>
@@ -98,8 +100,8 @@ const Landing = () => {
         </PageContainer>
       </section>
 
-      {/* Features Section: Clean Grid */}
-      <section className="bg-light py-5 rounded-top-5 mt-5">
+      {/* Features Section: Modern Grid */}
+      <section className="bg-surface py-5 rounded-top-lg mt-5 shadow-sm border-top">
         <PageContainer className="py-5">
           <SectionHeader
             title="Designed for Deep Work"
@@ -107,20 +109,21 @@ const Landing = () => {
             align="center"
           />
 
-          <Row className="mt-5 g-4">
+          <Row className="mt-5 g-4 px-2">
             {[
-              { id: '01', t: 'Curated Discovery', d: 'Access deep-catalog insights and architectural gems through our integrated API.' },
-              { id: '02', t: 'Personal Archives', d: 'Maintain a clean, digital log of your reading journey and future aspirations.' },
+              { id: '01', t: 'Curated Discovery', d: 'Experience deep-catalog insights and literary gems through our refined explorer interface.' },
+              { id: '02', t: 'Personal Archives', d: 'Maintain a clean, elegant digital log of your reading journey and future aspirations.' },
               { id: '03', t: 'Local Connectivity', d: 'Stay informed about relevant literary gatherings and cultural events in your area.' }
             ].map((feature) => (
               <Col md={4} key={feature.id}>
                 <motion.div
-                  whileHover={{ y: -10 }}
-                  className="h-100 bg-white border-0 p-5 shadow-sm rounded-4"
+                  whileHover={{ y: -10, borderColor: 'var(--accent)' }}
+                  className="h-100 bg-bg border p-5 shadow-sm rounded-lg transition-all duration-300"
+                  style={{ border: '1px solid var(--border)' }}
                 >
-                  <span className="text-muted fw-bold d-block mb-3 opacity-50">{feature.id}</span>
-                  <h4 className="fw-bold mb-3 serif">{feature.t}</h4>
-                  <p className="text-muted mb-0 lh-base">{feature.d}</p>
+                  <span className="text-accent fw-bold d-block mb-3 opacity-40 serif italic" style={{ fontSize: '1.5rem' }}>{feature.id}</span>
+                  <h4 className="fw-bold mb-3 serif text-gradient">{feature.t}</h4>
+                  <p className="text-muted mb-0 lh-base fw-medium">{feature.d}</p>
                 </motion.div>
               </Col>
             ))}

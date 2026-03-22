@@ -50,48 +50,53 @@ const Events = () => {
   return (
     <PageContainer>
       <Container className="py-5">
-        <div className="text-center mb-5 py-5">
+        <div className="text-center mb-5 py-5 animate-fade-in">
           <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            className="display-3 fw-bold mb-3 text-premium-gradient serif"
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="display-3 fw-bold mb-3 text-gradient serif"
           >
             Local Literati
           </motion.h1>
           <motion.div 
             initial={{ width: 0 }}
-            animate={{ width: '60px' }}
+            animate={{ width: '40px' }}
+            transition={{ delay: 0.5, duration: 0.8 }}
             className="mx-auto title-underline mb-4"
+            style={{ height: '3px', background: 'var(--accent)', borderRadius: '10px' }}
           />
           <motion.p 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="lead text-secondary max-w-xl mx-auto fw-medium"
+            transition={{ delay: 0.3, duration: 0.8 }}
+            className="lead text-muted max-w-xl mx-auto fw-medium"
           >
-            Discover upcoming literary gatherings, author talks, and workshops within your node's range.
+            Discover upcoming literary gatherings, author talks, and workshops <br />
+            within your node's range.
           </motion.p>
         </div>
 
         <Row className="mb-5 justify-content-center">
           <Col md={10} lg={7}>
-            <BrutalCard className="p-1 border-0 shadow-lg" style={{ borderRadius: '100px' }}>
-              <InputGroup className="border-0 bg-transparent">
-                <div className="d-flex align-items-center ps-4 text-accent">
-                  <FaMapMarkerAlt size={20} />
+            <BrutalCard className="p-1 border-0 shadow-xl bg-surface" style={{ borderRadius: 'var(--radius-full)' }}>
+              <InputGroup className="border-0 bg-transparent align-items-center">
+                <div className="d-flex align-items-center ps-4 text-accent opacity-60">
+                  <FaMapMarkerAlt size={18} />
                 </div>
                 <Form.Control
                   placeholder="Enter sector (e.g. Mumbai, Bandra)..."
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && fetchEvents()}
-                  className="border-0 shadow-none px-3 py-3 fs-5 bg-transparent"
+                  className="border-0 shadow-none px-3 py-3 fs-5 bg-transparent text-text"
+                  style={{ fontWeight: '500' }}
                 />
                 <BrutalButton 
                   variant="primary" 
                   onClick={fetchEvents} 
                   disabled={loading}
-                  className="px-5 ms-2 my-1 me-1"
+                  className="px-5 ms-2 my-1 me-1 shadow-sm"
                 >
                   {loading ? <Spinner size="sm" /> : "Find Events"}
                 </BrutalButton>
@@ -132,9 +137,9 @@ const Events = () => {
               animate={{ opacity: 1 }}
               className="text-center py-5"
             >
-              <div className="py-5 bg-bg rounded-3xl border border-dashed max-w-lg mx-auto">
-                <h4 className="serif mb-2">No Activations Found</h4>
-                <p className="text-secondary small mb-0 px-4">The current sector seems quiet. Try a larger hub like 'Mumbai' or 'Delhi'.</p>
+              <div className="py-5 bg-bg rounded-lg border border-dashed max-w-lg mx-auto" style={{ borderColor: 'var(--border-strong)' }}>
+                <h4 className="serif mb-2 text-gradient">No Activations Found</h4>
+                <p className="text-muted small mb-0 px-4 fw-medium">The current sector seems quiet. Try a larger hub like 'Mumbai' or 'Delhi'.</p>
               </div>
             </motion.div>
           )}

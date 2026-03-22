@@ -15,7 +15,7 @@ import BrutalButton from './components/ui/BrutalButton';
 
 // Styles
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './styles/brutalist.css'; 
+// import './styles/brutalist.css'; 
 import './index.css';
 
 // Lazy Pages

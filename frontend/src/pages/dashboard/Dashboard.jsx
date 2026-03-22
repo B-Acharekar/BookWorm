@@ -47,20 +47,22 @@ const Dashboard = () => {
       <Container className="py-5">
         {/* PREMIUM HERO HEADER */}
         <motion.div 
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="mb-5 p-5 shadow-sm position-relative overflow-hidden text-center" 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-5 p-5 shadow-lg position-relative overflow-hidden text-center animate-fade-in" 
           style={{ 
             background: 'var(--surface)',
-            borderRadius: '40px',
+            borderRadius: 'var(--radius-lg)',
             border: '1px solid var(--border)'
           }}
         >
+          <div className="position-absolute top-0 start-0 w-100 h-100 opacity-5 pointer-events-none" style={{ background: 'linear-gradient(135deg, var(--accent) 0%, transparent 100%)' }}></div>
+          
           <div className="position-relative" style={{ zIndex: 2 }}>
-            <span className="small text-uppercase fw-bold text-accent tracking-widest mb-3 d-block">Member Library Access</span>
-            <h1 className="fw-bold mb-3 display-4 serif">Welcome back, {user?.displayName?.split(' ')[0] || 'Reader'}</h1>
-            <div className="mx-auto title-underline mb-4" />
-            <p className="lead text-secondary mx-auto max-w-lg">
+            <span className="small text-uppercase fw-bold text-accent tracking-widest mb-3 d-block serif italic" style={{ fontSize: '0.8rem' }}>Member Library Access</span>
+            <h1 className="fw-bold mb-3 display-4 serif text-gradient">Welcome back, {user?.displayName?.split(' ')[0] || 'Reader'}</h1>
+            <div className="mx-auto title-underline mb-4" style={{ height: '3px', width: '30px', background: 'var(--accent)', borderRadius: '10px' }} />
+            <p className="lead text-muted mx-auto max-w-lg fw-medium">
               {readingBooks.length > 0 
                 ? `You possess ${readingBooks.length} active volume${readingBooks.length > 1 ? 's' : ''} in your current rotation.` 
                 : "Your personal archive is awaiting a new addition."}

@@ -72,39 +72,44 @@ const Discover = () => {
     <PageContainer>
       <Container className="py-5">
         {/* EDITORIAL HERO */}
-        <div className="text-center mb-5 py-5">
+        <div className="text-center mb-5 py-5 animate-fade-in">
           <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            className="display-3 fw-bold mb-3 text-premium-gradient serif"
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="display-3 fw-bold mb-3 text-gradient serif"
           >
             The City Archive
           </motion.h1>
           <motion.div 
             initial={{ width: 0 }}
-            animate={{ width: '60px' }}
+            animate={{ width: '40px' }}
+            transition={{ delay: 0.5, duration: 0.8 }}
             className="mx-auto title-underline mb-4"
+            style={{ height: '3px', background: 'var(--accent)', borderRadius: '10px' }}
           />
           <motion.p 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="lead text-secondary max-w-xl mx-auto fw-medium"
+            transition={{ delay: 0.3, duration: 0.8 }}
+            className="lead text-muted max-w-xl mx-auto fw-medium"
           >
-            Explore millions of volumes from the Open Library nodes. Structured metadata for the modern reader.
+            Explore millions of volumes from the Open Library nodes. <br />
+            Structured metadata for the modern researcher.
           </motion.p>
         </div>
 
         {/* SEARCH BAR */}
         <div className="max-w-2xl mx-auto position-relative mb-5" ref={dropdownRef}>
-          <BrutalCard className="p-1 border-0 shadow-lg" style={{ borderRadius: '100px' }}>
-            <InputGroup className="border-0 bg-transparent">
-              <div className="d-flex align-items-center ps-4 text-accent">
-                <FaSearch size={20} />
+          <BrutalCard className="p-1 border-0 shadow-xl bg-surface" style={{ borderRadius: 'var(--radius-full)' }}>
+            <InputGroup className="border-0 bg-transparent align-items-center">
+              <div className="d-flex align-items-center ps-4 text-accent opacity-60">
+                <FaSearch size={18} />
               </div>
               <Form.Control
                 placeholder="Search by title, author, or ISBN..."
-                className="border-0 shadow-none px-3 py-3 fs-5 bg-transparent"
+                className="border-0 shadow-none px-3 py-3 fs-5 bg-transparent text-text"
+                style={{ fontWeight: '500' }}
                 value={query}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
@@ -113,15 +118,15 @@ const Discover = () => {
               {query && (
                 <button
                   type="button"
-                  className="bg-transparent border-0 px-3 text-secondary hover:text-accent transition-colors"
+                  className="bg-transparent border-0 px-3 text-muted hover:text-accent transition-all"
                   onClick={() => setQuery('')}
                 >
-                  <FaTimes />
+                  <FaTimes size={14} />
                 </button>
               )}
               <BrutalButton 
                 variant="primary" 
-                className="px-5 ms-2 my-1 me-1"
+                className="px-5 ms-2 my-1 me-1 shadow-sm"
                 onClick={() => query.length > 2 && searchBooks(query)}
               >
                 Search

@@ -30,60 +30,58 @@ const Login = () => {
           className="mx-auto"
           style={{ maxWidth: '400px' }}
         >
-          <BrutalCard className="p-4 border-0 shadow-lg bg-surface" style={{ borderRadius: '28px' }}>
-            <div className="text-center mb-4">
-              <h2 className="fw-bold mb-1 serif h3">Welcome back</h2>
-              <p className="text-secondary small opacity-75">Your personal archive awaits.</p>
+          <BrutalCard className="p-5 bg-surface" style={{ borderRadius: 'var(--radius-lg)' }}>
+            <div className="text-center mb-5 animate-fade-in">
+              <h2 className="fw-bold mb-2 serif h3 text-gradient">Welcome back</h2>
+              <p className="text-muted small fw-medium">Your personal archive awaits.</p>
             </div>
             
             <Form onSubmit={(e) => e.preventDefault()}>
               {/* Archive ID Input */}
-              <Form.Group className="mb-3">
+              <Form.Group className="mb-4">
                 <div className="position-relative">
-                  <FaEnvelope className="position-absolute translate-middle-y top-50 start-0 ms-3 text-accent opacity-50" size={14} />
+                  <FaEnvelope className="position-absolute translate-middle-y top-50 start-0 ms-3 text-accent opacity-40" size={14} />
                   <Form.Control 
                     type="email" 
                     placeholder="Archive ID (Email)"
-                    className="ps-5 py-2 border-0 bg-bg shadow-none small" 
-                    style={{ borderRadius: '12px', fontSize: '0.9rem' }}
+                    className="premium-input ps-5 w-100" 
                   />
                 </div>
               </Form.Group>
               
               {/* Access Key Input */}
-              <Form.Group className="mb-4">
+              <Form.Group className="mb-5">
                 <div className="position-relative">
-                  <FaLock className="position-absolute translate-middle-y top-50 start-0 ms-3 text-accent opacity-50" size={14} />
+                  <FaLock className="position-absolute translate-middle-y top-50 start-0 ms-3 text-accent opacity-40" size={14} />
                   <Form.Control 
                     type="password" 
                     placeholder="Access Key"
-                    className="ps-5 py-2 border-0 bg-bg shadow-none small" 
-                    style={{ borderRadius: '12px', fontSize: '0.9rem' }}
+                    className="premium-input ps-5 w-100" 
                   />
                 </div>
               </Form.Group>
               
-              <BrutalButton type="submit" variant="primary" className="w-100 mb-3 py-2 fw-bold shadow-sm rounded-pill">
+              <BrutalButton type="submit" variant="primary" className="w-100 mb-4 py-3">
                 Sign In
               </BrutalButton>
               
-              <div className="d-flex align-items-center gap-2 mb-3 opacity-25">
+              <div className="d-flex align-items-center gap-3 mb-4 opacity-20">
                 <hr className="flex-grow-1" />
-                <span className="tiny fw-bold text-uppercase tracking-widest">or</span>
+                <span className="tiny fw-bold text-uppercase tracking-widest text-text">or</span>
                 <hr className="flex-grow-1" />
               </div>
               
               <BrutalButton 
                 variant="outline-dark" 
-                className="w-100 d-flex align-items-center justify-content-center gap-2 py-2 small fw-semibold bg-white rounded-pill shadow-sm" 
+                className="w-100 d-flex align-items-center justify-content-center gap-2 py-3 bg-white" 
                 onClick={handleGoogleLogin}
               >
                 <FaGoogle className="text-danger" /> Google
               </BrutalButton>
               
-              <div className="text-center mt-4">
-                <p className="text-secondary small mb-0">
-                  New researcher? <Link to="/signup" className="text-accent fw-bold text-decoration-none">Create a profile</Link>
+              <div className="text-center mt-5">
+                <p className="text-muted small mb-0 fw-medium">
+                  New researcher? <Link to="/signup" className="text-accent fw-bold text-decoration-none hover-underline">Create a profile</Link>
                 </p>
               </div>
             </Form>

@@ -10,62 +10,134 @@ const CustomNavbar = () => {
   const navigate = useNavigate();
 
   return (
-    <Navbar expand="lg" className="glass py-2 sticky-top border-bottom border-2 border-dark">
-      <Container>
-        {/* Brand Section: Fixed logo size and alignment */}
-        <Navbar.Brand as={Link} to="/" className="d-flex align-items-center fw-bold fs-3 serif gap-2">
-          <Image 
-            src="/public/icons/icon-512.png" 
+    <Navbar
+      expand="lg"
+      className="glass py-2 py-lg-3 sticky-top border-bottom"
+    >
+      <Container fluid="lg">
+        
+        {/* ✅ BRAND */}
+        <Navbar.Brand
+          as={Link}
+          to="/"
+          className="d-flex align-items-center fw-bold fs-5 fs-lg-3 serif gap-2 text-gradient"
+        >
+          <Image
+            src="/public/icons/icon-512.png"
             alt="Bookworm Logo"
-            style={{ width: '50px', height: '50px', objectFit: 'contain' }} 
-          /> 
+            style={{ width: '34px', height: '34px', objectFit: 'contain' }}
+          />
           <span className="tracking-tighter">BOOKWORM</span>
         </Navbar.Brand>
-        
-        {/* Action Group: Buttons and Toggles */}
-        <div className="d-flex align-items-center order-lg-3 gap-3">
-          <ThemeToggle />
-          
-          {user ? (
-            <div className="d-flex align-items-center gap-3">
-              <Link to="/profile" className="d-none d-md-block">
-                <img 
-                  src={user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName || 'User'}&background=random`} 
-                  alt="Profile" 
-                  className="rounded-circle border border-2 border-dark" 
-                  style={{ width: '40px', height: '40px', objectFit: 'cover' }}
-                />
-              </Link>
-              <BrutalButton variant="secondary" className="px-3 py-1 btn-sm" onClick={logout}>
-                Logout
-              </BrutalButton>
-            </div>
-          ) : (
-            <BrutalButton variant="primary" onClick={() => navigate('/signup')}>
-              Sign Up
-            </BrutalButton>
-          )}
-          <Navbar.Toggle aria-controls="basic-navbar-nav" className="border-2 border-dark ms-2" />
-        </div>
 
-        {/* Navigation Links */}
-        <Navbar.Collapse id="basic-navbar-nav" className="order-lg-2">
-          <Nav className="mx-auto fw-bold">
+        {/* ✅ RIGHT SIDE */}
+        <div className="d-flex align-items-center order-lg-3">
+
+          {/* Desktop-only actions */}
+          <div className="d-none d-lg-flex align-items-center gap-3">
+            <ThemeToggle />
+
             {user ? (
               <>
-                <Nav.Link as={Link} to="/dashboard" className="px-3 text-dark">Dashboard</Nav.Link>
-                <Nav.Link as={Link} to="/discover" className="px-3 text-dark">Discover</Nav.Link>
-                <Nav.Link as={Link} to="/my-books" className="px-3 text-dark">My Books</Nav.Link>
-                <Nav.Link as={Link} to="/events" className="px-3 text-dark">Events</Nav.Link>
+                <Link to="/profile">
+                  <img
+                    src={
+                      user.photoURL ||
+                      `https://ui-avatars.com/api/?name=${
+                        user.displayName || 'User'
+                      }&background=random`
+                    }
+                    alt="Profile"
+                    className="rounded-circle border shadow-sm"
+                    style={{ width: '36px', height: '36px' }}
+                  />
+                </Link>
+
+                <BrutalButton
+                  variant="secondary"
+                  onClick={logout}
+                >
+                  Logout
+                </BrutalButton>
               </>
             ) : (
               <>
-                <Nav.Link as={Link} to="/discover" className="px-3 text-dark">Library</Nav.Link>
-                <Nav.Link as={Link} to="/events" className="px-3 text-dark">Local Events</Nav.Link>
+                <BrutalButton
+                  variant="outline-dark"
+                  onClick={() => navigate('/login')}
+                >
+                  Log In
+                </BrutalButton>
+
+                <BrutalButton
+                  variant="primary"
+                  onClick={() => navigate('/signup')}
+                >
+                  Join
+                </BrutalButton>
+              </>
+            )}
+          </div>
+
+          {/* ✅ TOGGLE */}
+          <Navbar.Toggle
+            aria-controls="basic-navbar-nav"
+            className="ms-2 border-0 shadow-none"
+          />
+        </div>
+
+        {/* ✅ COLLAPSE MENU */}
+        <Navbar.Collapse
+          id="basic-navbar-nav"
+          className="order-lg-2 mt-3 mt-lg-0"
+        >
+          <Nav className="mx-auto text-center text-lg-start fw-medium">
+            {user ? (
+              <>
+                <Nav.Link as={Link} to="/dashboard">Dashboard</Nav.Link>
+                <Nav.Link as={Link} to="/discover">Discover</Nav.Link>
+                <Nav.Link as={Link} to="/my-books">My Books</Nav.Link>
+                <Nav.Link as={Link} to="/events">Events</Nav.Link>
+                <Nav.Link as={Link} to="/community">Community</Nav.Link>
+              </>
+            ) : (
+              <>
+                <Nav.Link as={Link} to="/discover">Library</Nav.Link>
+                <Nav.Link as={Link} to="/events">Local Events</Nav.Link>
               </>
             )}
           </Nav>
+
+          {/* ✅ MOBILE DROPDOWN (NO profile, NO theme toggle) */}
+          <div className="d-lg-none mt-3 pt-3 border-top">
+            <div className="d-flex flex-column gap-2">
+
+              {user ? (
+                <BrutalButton onClick={logout}>
+                  Logout
+                </BrutalButton>
+              ) : (
+                <>
+                  <BrutalButton
+                    variant="outline-dark"
+                    onClick={() => navigate('/login')}
+                  >
+                    Log In
+                  </BrutalButton>
+
+                  <BrutalButton
+                    variant="primary"
+                    onClick={() => navigate('/signup')}
+                  >
+                    Join Now
+                  </BrutalButton>
+                </>
+              )}
+
+            </div>
+          </div>
         </Navbar.Collapse>
+
       </Container>
     </Navbar>
   );
