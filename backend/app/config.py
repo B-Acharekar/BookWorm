@@ -1,12 +1,14 @@
 import os
-from dotenv import load_dotenv
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing import Optional
 
-load_dotenv()
+class Settings(BaseSettings):
+    GEMINI_API_KEY: str
+    FIREBASE_CREDENTIAL_PATH: Optional[str] = "/etc/secrets/firebase-service-account.json"
+    MODEL_NAME: str = "gemini-1.5-flash-lite"
+    PORT: int = 8000
 
-class Config:
-    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-    FIREBASE_CREDENTIAL_PATH = os.getenv("FIREBASE_CREDENTIAL_PATH")
-    MODEL_NAME = os.getenv("MODEL_NAME", "gemini-1.5-flash-lite")
-    PORT = int(os.getenv("PORT", 8000))
+    # Pydantic Settings will look for these in the environment
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-settings = Config()
+settings = Settings()

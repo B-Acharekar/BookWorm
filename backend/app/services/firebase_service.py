@@ -6,13 +6,24 @@ from typing import List, Dict, Any
 
 class FirebaseService:
     def __init__(self):
-        # Stable path resolution using the file's location
-        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-        cred_path = os.path.join(base_dir, "bookworm_firebase_admin.json")
+        from app.config import settings
+        
+        # Use the path from settings, which defaults to the Render secret path
+        cred_path = settings.FIREBASE_CREDENTIAL_PATH
         
         if not firebase_admin._apps:
-            cred = credentials.Certificate(cred_path)
-            firebase_admin.initialize_app(cred)
+            if cred_path and os.path.exists(cred_path):
+                cred = credentials.Certificate(cred_path)
+                firebase_admin.initialize_app(cred)
+            else:
+                # Fallback for local development if the primary path doesn't exist
+                local_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "bookworm_firebase_admin.json")
+                if os.path.exists(local_path):
+                    cred = credentials.Certificate(local_path)
+                    firebase_admin.initialize_app(cred)
+                else:
+                    print(f"WARNING: Firebase credentials not found at {cred_path} or {local_path}")
+        
         self.db = firestore.client()
         self.user_books = "user_books"
         self.reviews = "reviews"

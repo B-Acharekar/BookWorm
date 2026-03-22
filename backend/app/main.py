@@ -1,29 +1,23 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-from app.routes import recommendation_routes
-from app.routes import books
-from app.config import settings
-
 import uvicorn
 from dotenv import load_dotenv
 import os
 from pathlib import Path
 
-from app.routes import admin
+from app.routes import recommendation_routes, books, admin
+from app.config import settings
 
-# Load env
+# Load environment variables
 env_path = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(dotenv_path=env_path)
 
-print("ENV PATH:", os.getenv("FIREBASE_CREDENTIAL_PATH"))
-print("KEY DEBUG:", os.getenv("GEMINI_API_KEY"))
 app = FastAPI(title="Bookworm Backend API")
 
-# 🔥🔥🔥 ADD THIS (CORS FIX)
+# CORS Configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # ⚠️ For dev only (later restrict)
+    allow_origins=["*"],  # No 403 blocks during initial Render rollout
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -38,5 +32,11 @@ app.include_router(admin.router)
 async def root():
     return {"message": "Welcome to Bookworm Backend API"}
 
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
+
 if __name__ == "__main__":
-    uvicorn.run("app.main:app", host="0.0.0.0", port=settings.PORT, reload=True)
+    # Ensure the app reads from os.environ.get("PORT", 8000) via settings
+    port = int(os.environ.get("PORT", settings.PORT))
+    uvicorn.run("app.main:app", host="0.0.0.0", port=port, reload=True)
