@@ -29,8 +29,8 @@ const BookCard = ({ book, status }) => {
       style={{ borderRadius: '24px', cursor: 'pointer' }}
     >
       <div 
-        className="position-relative overflow-hidden" 
-        style={{ height: '320px' }}
+        className="position-relative overflow-hidden aspect-ratio-3-4" 
+        style={{ minHeight: '280px', maxHeight: '360px' }}
       >
         <motion.img 
           whileHover={{ scale: 1.05 }}

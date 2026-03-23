@@ -54,6 +54,30 @@ const PageLoader = () => (
   </PageContainer>
 );
 
+// Error Boundary Component
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError(error) { return { hasError: true }; }
+  componentDidCatch(error, errorInfo) { console.error("App Error:", error, errorInfo); }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <PageContainer className="text-center py-10">
+          <div className="premium-card p-5 bg-white border border-rose-500 shadow-lg">
+            <h1 className="serif fw-bold text-rose-500">Something went wrong.</h1>
+            <p className="text-muted">Please refresh the page or try again later.</p>
+            <BrutalButton variant="primary" onClick={() => window.location.reload()}>Refresh</BrutalButton>
+          </div>
+        </PageContainer>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 // Helper for Auth Logic to keep JSX clean
 const PrivateRoute = ({ children, adminOnly = false }) => {
   const { user, isAdmin, loading } = useAuth();
@@ -67,60 +91,62 @@ const PrivateRoute = ({ children, adminOnly = false }) => {
 
 const App = () => {
   return (
-    <AuthProvider>
-      <ThemeProvider>
-        <BookProvider>
-          <Router>
-            <div className="app-wrapper d-flex flex-column min-vh-100">
-              <Navbar />
-              
-              <main className="flex-grow-1">
-                <Suspense fallback={<PageLoader />}>
-                  <Routes>
-                    {/* Public */}
-                    <Route path="/" element={<Landing />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/signup" element={<Signup />} />
-                    <Route path="/login/admin" element={<AdminLogin />} />
-                    <Route path="/discover" element={<Discover />} />
-                    <Route path="/events" element={<Events />} />
-                    <Route path="/book/:bookId" element={<BookDetails />} />
+    <ErrorBoundary>
+      <AuthProvider>
+        <ThemeProvider>
+          <BookProvider>
+            <Router>
+              <div className="app-wrapper d-flex flex-column min-vh-100">
+                <Navbar />
+                
+                <main className="flex-grow-1">
+                  <Suspense fallback={<PageLoader />}>
+                    <Routes>
+                      {/* Public */}
+                      <Route path="/" element={<Landing />} />
+                      <Route path="/login" element={<Login />} />
+                      <Route path="/signup" element={<Signup />} />
+                      <Route path="/login/admin" element={<AdminLogin />} />
+                      <Route path="/discover" element={<Discover />} />
+                      <Route path="/events" element={<Events />} />
+                      <Route path="/book/:bookId" element={<BookDetails />} />
 
-                    {/* Protected */}
-                    <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-                    <Route path="/my-books" element={<PrivateRoute><MyBooks /></PrivateRoute>} />
-                    <Route path="/community" element={<PrivateRoute><Community /></PrivateRoute>} />
-                    <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+                      {/* Protected */}
+                      <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+                      <Route path="/my-books" element={<PrivateRoute><MyBooks /></PrivateRoute>} />
+                      <Route path="/community" element={<PrivateRoute><Community /></PrivateRoute>} />
+                      <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
 
-                    {/* Admin */}
-                    <Route path="/admin" element={<PrivateRoute adminOnly><AdminDashboard /></PrivateRoute>} />
+                      {/* Admin */}
+                      <Route path="/admin" element={<PrivateRoute adminOnly><AdminDashboard /></PrivateRoute>} />
 
-                    {/* 404 */}
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </Suspense>
-              </main>
+                      {/* 404 */}
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </Suspense>
+                </main>
 
-              <Footer />
-            </div>
-          </Router>
-        </BookProvider>
-      </ThemeProvider>
-    </AuthProvider>
+                <Footer />
+              </div>
+            </Router>
+          </BookProvider>
+        </ThemeProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 
 const NotFound = () => (
   <PageContainer className="text-center py-10">
-    <div className="brutal-card shadow-solid d-inline-block p-5 bg-white border border-4 border-dark">
-      <h1 className="display-1 fw-black tracking-tighter">404</h1>
+    <div className="premium-card shadow-solid d-inline-block p-5 bg-surface border border-4 border-dark overflow-visible">
+      <h1 className="display-1 fw-black tracking-tighter mb-4">404</h1>
       <SectionHeader 
         title="LOST IN THE STACKS" 
         subtitle="This page was moved or never written." 
         align="center" 
       />
-      <div className="mt-4">
-        <BrutalButton variant="primary" onClick={() => window.location.href = '/'}>
+      <div className="mt-5">
+        <BrutalButton variant="primary" className="px-5 py-3" onClick={() => window.location.href = '/'}>
           RETURN TO CATALOGUE
         </BrutalButton>
       </div>
