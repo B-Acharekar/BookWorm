@@ -2,7 +2,7 @@
 
 A full-stack web application for book lovers to discover, track, and share their reading journey with community features and AI-powered recommendations.
 
-![BookWorm](https://book-worm-theta.vercel.app/)
+[![BookWorm](https://book-worm-theta.vercel.app/icons/icon-512.png)](https://book-worm-theta.vercel.app/)
 
 ## 🎯 Overview
 
